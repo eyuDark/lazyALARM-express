@@ -3,6 +3,8 @@ import { Prisma } from '@prisma/client';
 import { AppError } from '../errors/app-error';
 import { prisma } from '../lib/prisma';
 
+// Device services protect the ownership boundary so one user cannot update or
+// delete another user's registered push device.
 export async function upsertDevice(userId: string, data: Omit<Prisma.DeviceUncheckedCreateInput, 'userId'>) {
   return prisma.device.upsert({
     where: {

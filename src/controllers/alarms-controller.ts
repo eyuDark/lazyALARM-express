@@ -2,10 +2,14 @@ import { NextFunction, Request, Response } from 'express';
 
 import * as alarmService from '../services/alarms-service';
 
+// Params are normalized once in the controller so services can stay focused
+// on alarm behavior instead of HTTP-specific edge cases.
 function getRequiredParam(value: string | string[] | undefined) {
   return Array.isArray(value) ? value[0] ?? '' : value ?? '';
 }
 
+// Alarm controllers are intentionally thin because alarm rules are the most
+// business-heavy part of the app and belong in services.
 export async function listAlarms(req: Request, res: Response, next: NextFunction) {
   try {
     const alarms = await alarmService.listAlarms(req.userId!);

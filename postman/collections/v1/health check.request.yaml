@@ -1,0 +1,6 @@
+$kind: http-request
+name: health check
+url: http://localhost:4000/v1/health
+method: GET
+examples: .resources/health check.resources/examples
+order: 1168764288057
