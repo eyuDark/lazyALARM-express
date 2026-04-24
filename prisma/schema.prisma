@@ -1,0 +1,108 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Platform {
+  IOS
+  ANDROID
+}
+
+enum DayOfWeek {
+  SUN
+  MON
+  TUE
+  WED
+  THU
+  FRI
+  SAT
+}
+
+enum ToneMode {
+  FIXED
+  RANDOM
+  ESCALATE
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String?  @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  alarms  Alarm[]
+  devices Device[]
+  tones   Tone[]
+}
+
+model Device {
+  id              String   @id @default(cuid())
+  userId          String
+  pushToken       String
+  platform        Platform
+  timezone        String
+  tzOffsetMinutes Int
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, pushToken])
+}
+
+model Tone {
+  id        String   @id @default(cuid())
+  userId    String?
+  name      String
+  url       String
+  isSystem  Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user               User?   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  alarmsUsingPrimary Alarm[] @relation("AlarmPrimaryTone")
+}
+
+model Alarm {
+  id                String    @id @default(cuid())
+  userId            String
+  label             String
+  timezone          String
+  enabled           Boolean   @default(true)
+  toneMode          ToneMode  @default(FIXED)
+  primaryToneId     String?
+  escalateStepSec   Int?
+  escalateMaxVolume Int?
+  nextFireAt        DateTime?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  primaryTone Tone?     @relation("AlarmPrimaryTone", fields: [primaryToneId], references: [id])
+  times       AlarmTime[]
+  logs        AlarmLog[]
+}
+
+model AlarmTime {
+  id        Int       @id @default(autoincrement())
+  alarmId   String
+  hour      Int
+  minute    Int
+  dayOfWeek DayOfWeek
+
+  alarm Alarm @relation(fields: [alarmId], references: [id], onDelete: Cascade)
+}
+
+model AlarmLog {
+  id        Int       @id @default(autoincrement())
+  alarmId   String
+  firedAt   DateTime
+  status    String
+  message   String?
+
+  alarm Alarm @relation(fields: [alarmId], references: [id], onDelete: Cascade)
+}
