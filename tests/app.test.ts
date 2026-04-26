@@ -10,7 +10,7 @@ describe('app boot', () => {
   });
 
   it('builds the OpenAPI document', () => {
-    expect(openApiDocument.info.title).toBe('lazyALARM API');
+    expect(openApiDocument.info.title).toBe('lazyAlarm API');
     expect(openApiDocument.paths['/v1/health']).toBeDefined();
   });
 });
