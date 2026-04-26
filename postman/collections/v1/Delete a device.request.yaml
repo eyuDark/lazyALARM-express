@@ -1,0 +1,7 @@
+$kind: http-request
+url: http://localhost:4000/v1/devices/cmoctdycr00054anih75v8vpv
+method: DELETE
+headers:
+  x-user-id: "{{USER_ID}}"
+examples: .resources/Delete a device.resources/examples
+order: 3665403483917318

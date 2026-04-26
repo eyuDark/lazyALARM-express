@@ -3,6 +3,8 @@ import { DayOfWeek, Prisma, ToneMode } from '@prisma/client';
 import { AppError } from '../errors/app-error';
 import { prisma } from '../lib/prisma';
 
+// These inputs mirror the validated request shape so services can stay typed
+// without depending on Express request objects.
 type AlarmTimeInput = {
   dayOfWeek: DayOfWeek;
   hour: number;
@@ -22,6 +24,8 @@ type CreateAlarmInput = {
 
 type UpdateAlarmInput = Partial<CreateAlarmInput>;
 
+// Prisma createMany wants a flat array, so we normalize alarm-time payloads in
+// one helper instead of repeating that mapping in multiple service methods.
 function toTimeCreateManyData(times: AlarmTimeInput[]) {
   return times.map((time) => ({
     dayOfWeek: time.dayOfWeek,
@@ -30,6 +34,8 @@ function toTimeCreateManyData(times: AlarmTimeInput[]) {
   }));
 }
 
+// Ownership checks live in the service layer because they are business rules,
+// not controller concerns.
 async function ensureAlarmOwner(userId: string, id: string) {
   const alarm = await prisma.alarm.findFirst({
     where: { id, userId },
@@ -42,6 +48,8 @@ async function ensureAlarmOwner(userId: string, id: string) {
   return alarm;
 }
 
+// Alarm services centralize the important wake-up logic: creating schedules,
+// replacing times, toggling enabled state, and enforcing ownership.
 export async function listAlarms(userId: string) {
   return prisma.alarm.findMany({
     where: { userId },

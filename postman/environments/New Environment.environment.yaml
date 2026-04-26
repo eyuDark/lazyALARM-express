@@ -1,0 +1,6 @@
+name: local-dev
+values:
+  - key: USER_ID
+    enabled: true
+    value: ''
+color: 120

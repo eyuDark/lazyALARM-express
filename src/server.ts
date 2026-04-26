@@ -5,7 +5,7 @@ export function startServer() {
   const app = createApp();
 
   return app.listen(env.PORT, env.HOST, () => {
-    console.log(`lazyALARM API listening on http://${env.HOST}:${env.PORT}`);
+    console.log(`lazyAlarm API listening on http://${env.HOST}:${env.PORT}`);
   });
 }
 
